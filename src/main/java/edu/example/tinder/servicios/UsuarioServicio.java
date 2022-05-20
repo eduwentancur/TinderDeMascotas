@@ -11,6 +11,7 @@
  */
 package edu.example.tinder.servicios;
 
+import edu.example.tinder.entidades.Foto;
 import edu.example.tinder.entidades.Usuario;
 import edu.example.tinder.errores.ErrorServicio;
 import edu.example.tinder.repositorios.UsuarioRepositorio;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class UsuarioServicio {
@@ -25,8 +27,12 @@ public class UsuarioServicio {
     @Autowired  //esta variable la inicializa
     private UsuarioRepositorio usuarioRepositorio;
     
+    @Autowired
+    private FotoServicio fotoServicio;
     
-    public void regitrar(String nombre, String apellido, String mail, String clave) throws ErrorServicio{
+    
+    
+    public void registrar(MultipartFile archivo, String nombre, String apellido, String mail, String clave) throws ErrorServicio{
         
         validar(nombre,apellido,mail,clave);
         
@@ -36,10 +42,14 @@ public class UsuarioServicio {
         usuario.setMail(mail);
         usuario.setClave(clave);
         usuario.setAlta(new Date());
+        
+        Foto foto = fotoServicio.guardar(archivo);
+        usuario.setFoto(foto);
+        
         usuarioRepositorio.save(usuario);
     }
     
-    public void modificar(String id,String nombre, String apellido, String mail, String clave) throws ErrorServicio{
+    public void modificar(MultipartFile archivo,String id,String nombre, String apellido, String mail, String clave) throws ErrorServicio{
         
         validar(nombre,apellido,mail,clave);
         
@@ -50,6 +60,16 @@ public class UsuarioServicio {
             usuario.setApellido(apellido);
             usuario.setNombre(nombre);
             usuario.setMail(mail);
+            usuario.setClave(clave);
+            String idFoto = null;
+            
+            if (usuario.getFoto()!=null) {
+                idFoto=usuario.getFoto().getId();
+            }
+            
+            Foto foto = fotoServicio.actualizar(idFoto, archivo);
+            usuario.setFoto(foto);
+            
             usuarioRepositorio.save(usuario);
         }else{
             throw new ErrorServicio("No se encontro el usuario solicitado");

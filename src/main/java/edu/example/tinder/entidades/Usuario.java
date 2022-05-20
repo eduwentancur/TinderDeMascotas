@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -39,5 +40,7 @@ public class Usuario implements Serializable{
     @ManyToOne
     private Zona zona;
     
-
+    @OneToOne
+    private Foto foto;
+    
 }

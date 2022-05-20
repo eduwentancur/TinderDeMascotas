@@ -1,5 +1,6 @@
 package edu.example.tinder.servicios;
 
+import edu.example.tinder.entidades.Foto;
 import edu.example.tinder.enumeraciones.Sexo;
 import edu.example.tinder.repositorios.UsuarioRepositorio;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import edu.example.tinder.repositorios.MascotaRepositorio;
 import java.util.Date;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class MascotaServicio {
@@ -20,8 +22,12 @@ public class MascotaServicio {
     @Autowired
     private MascotaRepositorio mascotaRepositorio;
     
+    @Autowired
+    private FotoServicio fotoServicio;
     
-    public void agregarMascota(String idUsuario, String nombre, Sexo sexo) throws ErrorServicio{
+    
+    
+    public void agregarMascota(MultipartFile archivo,String idUsuario, String nombre, Sexo sexo) throws ErrorServicio{
         
         Usuario usuario = usuarioRepositorio.findById(idUsuario).get();
         
@@ -32,10 +38,13 @@ public class MascotaServicio {
         mascota.setNombre(nombre);
         mascota.setSexo(sexo);
         mascota.setBaja(new Date());
+        
+        Foto foto = fotoServicio.guardar(archivo);
+        mascota.setFoto(foto);
         mascotaRepositorio.save(mascota);
     }
     
-    public void modificar(String idUsuario, String idMascota, String nombre, Sexo sexo)throws ErrorServicio{
+    public void modificar(MultipartFile archivo,String idUsuario, String idMascota, String nombre, Sexo sexo)throws ErrorServicio{
         validar(nombre,sexo);
         Optional<Mascota> respuesta = mascotaRepositorio.findById(idMascota);
         if (respuesta.isPresent()) {
@@ -43,6 +52,14 @@ public class MascotaServicio {
             if (mascota.getUsuario().getId().equals(idUsuario)) {
                 mascota.setNombre(nombre);
                 mascota.setSexo(sexo);
+                String idFoto = null;
+                if(mascota.getFoto() != null){
+                    idFoto = mascota.getFoto().getId();
+                }
+                
+                Foto foto = fotoServicio.actualizar(idFoto, archivo);
+                mascota.setFoto(foto);
+                
                 mascotaRepositorio.save(mascota);
             }else{
                 throw new ErrorServicio("No tiene permiso suficiente para realizar la operacion");
