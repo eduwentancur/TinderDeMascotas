@@ -42,6 +42,8 @@ public class UsuarioServicio implements UserDetailsService{
     @Autowired
     private FotoServicio fotoServicio;
     
+    @Autowired
+    private NotificacionServicio notificacionServicio;
     
     
     public void registrar(MultipartFile archivo, String nombre, String apellido, String mail, String clave) throws ErrorServicio{
@@ -61,6 +63,8 @@ public class UsuarioServicio implements UserDetailsService{
         usuario.setFoto(foto);
         
         usuarioRepositorio.save(usuario);
+        notificacionServicio.enviar("Bienvendios al tinder de mascotas","Tinder de Mascotas", usuario.getMail());
+        
     }
     
     public void modificar(MultipartFile archivo,String id,String nombre, String apellido, String mail, String clave) throws ErrorServicio{
