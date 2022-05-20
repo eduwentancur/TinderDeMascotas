@@ -15,14 +15,26 @@ import edu.example.tinder.entidades.Foto;
 import edu.example.tinder.entidades.Usuario;
 import edu.example.tinder.errores.ErrorServicio;
 import edu.example.tinder.repositorios.UsuarioRepositorio;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-public class UsuarioServicio {
+public class UsuarioServicio implements UserDetailsService{
     
     @Autowired  //esta variable la inicializa
     private UsuarioRepositorio usuarioRepositorio;
@@ -40,7 +52,9 @@ public class UsuarioServicio {
         usuario.setNombre(nombre);
         usuario.setApellido(apellido);
         usuario.setMail(mail);
-        usuario.setClave(clave);
+        
+        String encriptada = new BCryptPasswordEncoder().encode(clave);
+        usuario.setClave(encriptada);
         usuario.setAlta(new Date());
         
         Foto foto = fotoServicio.guardar(archivo);
@@ -60,7 +74,8 @@ public class UsuarioServicio {
             usuario.setApellido(apellido);
             usuario.setNombre(nombre);
             usuario.setMail(mail);
-            usuario.setClave(clave);
+            String encriptada = new BCryptPasswordEncoder().encode(clave);
+            usuario.setClave(encriptada);
             String idFoto = null;
             
             if (usuario.getFoto()!=null) {
@@ -114,7 +129,27 @@ public class UsuarioServicio {
         if(clave == null || clave.isEmpty() || clave.length() < 6){throw new ErrorServicio("La clave no puede ser nulo y debe tener mas de 6 digitos");}
         
     }
-    
-    
+
+    @Override
+    public UserDetails loadUserByUsername(String mail) throws UsernameNotFoundException {
+        Usuario usuario = usuarioRepositorio.buscarPorMail(mail);
+        if(usuario != null){
+            
+            List<GrantedAuthority> permisos = new ArrayList<>();
+            
+            GrantedAuthority p1 = new SimpleGrantedAuthority("MODULO_FOTOS");
+            permisos.add(p1);
+            GrantedAuthority p2 = new SimpleGrantedAuthority("MODULO_MASCOTAS");
+            permisos.add(p2);
+            GrantedAuthority p3 = new SimpleGrantedAuthority("MODULO_VOTOS");
+            permisos.add(p3);
+            
+            
+            User user = new User(usuario.getMail(), usuario.getClave(), permisos);
+            return user;
+        } else {
+            return null;
+        }
+    }
     
 }
