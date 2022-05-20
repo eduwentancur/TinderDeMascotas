@@ -10,6 +10,7 @@ import edu.example.tinder.entidades.Mascota;
 import edu.example.tinder.repositorios.MascotaRepositorio;
 import java.util.Date;
 import java.util.Optional;
+import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +27,7 @@ public class MascotaServicio {
     private FotoServicio fotoServicio;
     
     
-    
+    @Transactional
     public void agregarMascota(MultipartFile archivo,String idUsuario, String nombre, Sexo sexo) throws ErrorServicio{
         
         Usuario usuario = usuarioRepositorio.findById(idUsuario).get();
@@ -44,6 +45,7 @@ public class MascotaServicio {
         mascotaRepositorio.save(mascota);
     }
     
+    @Transactional
     public void modificar(MultipartFile archivo,String idUsuario, String idMascota, String nombre, Sexo sexo)throws ErrorServicio{
         validar(nombre,sexo);
         Optional<Mascota> respuesta = mascotaRepositorio.findById(idMascota);
@@ -72,7 +74,7 @@ public class MascotaServicio {
         
     }
     
-    
+    @Transactional
     public void eliminar(String idUsuario, String idMascota)throws ErrorServicio{
         Optional<Mascota> respuesta = mascotaRepositorio.findById(idMascota);
         if (respuesta.isPresent()){
@@ -88,12 +90,8 @@ public class MascotaServicio {
     
     
     public void validar(String nombre,Sexo sexo)throws ErrorServicio{
-        
         if(nombre == null || nombre.isEmpty()){throw new ErrorServicio("El nombre no puede estar vacio");}
         if (sexo == null) {throw new ErrorServicio("El sexo de la mascota no puede ser nulo");}
-        
-        
-    
     }
     
 }

@@ -10,6 +10,7 @@ import edu.example.tinder.errores.ErrorServicio;
 import edu.example.tinder.repositorios.FotoRepositorio;
 import java.io.IOException;
 import java.util.Optional;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +21,7 @@ public class FotoServicio {
     @Autowired
     private FotoRepositorio fotoRepositorio;
 
+    @Transactional
     public Foto guardar(MultipartFile archivo) throws ErrorServicio {
 
         if (archivo != null) {
@@ -39,7 +41,7 @@ public class FotoServicio {
         return null;
     }
     
-    
+    @Transactional
     public Foto actualizar(String idFoto, MultipartFile archivo) throws ErrorServicio {
         if(archivo != null){
             try {                

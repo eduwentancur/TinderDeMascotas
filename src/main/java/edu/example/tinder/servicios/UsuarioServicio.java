@@ -20,6 +20,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -45,7 +46,8 @@ public class UsuarioServicio implements UserDetailsService{
     @Autowired
     private NotificacionServicio notificacionServicio;
     
-    
+        
+    @Transactional
     public void registrar(MultipartFile archivo, String nombre, String apellido, String mail, String clave) throws ErrorServicio{
         
         validar(nombre,apellido,mail,clave);
@@ -66,7 +68,7 @@ public class UsuarioServicio implements UserDetailsService{
         notificacionServicio.enviar("Bienvendios al tinder de mascotas","Tinder de Mascotas", usuario.getMail());
         
     }
-    
+    @Transactional
     public void modificar(MultipartFile archivo,String id,String nombre, String apellido, String mail, String clave) throws ErrorServicio{
         
         validar(nombre,apellido,mail,clave);
@@ -95,7 +97,7 @@ public class UsuarioServicio implements UserDetailsService{
         }
     }
     
-    
+    @Transactional
     public void deshabilitar(String id) throws ErrorServicio{
         Optional<Usuario> respuesta = usuarioRepositorio.findById(id);
         if (respuesta.isPresent()) {
@@ -107,7 +109,7 @@ public class UsuarioServicio implements UserDetailsService{
         }
     
     }
-    
+    @Transactional
     public void habilitar(String id) throws ErrorServicio{
         Optional<Usuario> respuesta = usuarioRepositorio.findById(id);
         if (respuesta.isPresent()) {
@@ -155,5 +157,4 @@ public class UsuarioServicio implements UserDetailsService{
             return null;
         }
     }
-    
 }
